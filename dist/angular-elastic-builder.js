@@ -2,7 +2,7 @@
  * # angular-elastic-builder
  * ## Angular Module for building an Elasticsearch Query
  *
- * @version v1.5.0
+ * @version v1.5.1
  * @link https://github.com/dncrews/angular-elastic-builder.git
  * @license MIT
  * @author Dan Crews <crewsd@gmail.com>
@@ -304,9 +304,14 @@
               'lt',
               'lte',
             ];
-
+            
             return ~needs.indexOf(scope.rule.subType);
           };
+
+          scope.largeInputNeeded = function(){
+            var needs=['in'];
+            return ~needs.indexOf(scope.rule.subType);
+          }
 
           scope.numberNeeded = function() {
             var needs = [
@@ -330,7 +335,7 @@
             dateDisabled: disabled,
             formatYear: 'yy',
             maxDate: new Date(2018, 1, 13),
-            minDate: new Date(),
+            minDate: new Date(2016,1,1),
             startingDay: 1,
           };
 
@@ -350,8 +355,8 @@
           };
 
           scope.formats = [
+            'yyyy-MM-ddTHH:mm:ss.999999\'Z\'',
             'yyyy-MM-ddTHH:mm:ss',
-            'yyyy-MM-ddTHH:mm:ssZ',
             'yyyy-MM-dd',
             'dd-MMMM-yyyy',
             'yyyy/MM/dd',
@@ -394,7 +399,6 @@
           'list-group-item-warning',
           'list-group-item-danger',
         ];
-
         return levels[level % levels.length];
       };
     });
@@ -475,7 +479,7 @@
           var vals = group[key][obj.field];
           if (typeof vals === 'string') vals = [ vals ];
           obj.values = fieldData.choices.reduce(function(prev, choice) {
-            prev[choice] = truthy === (~group[key][obj.field].indexOf(choice));
+            prev[choice] = group[key][obj.field].indexOf(choice) !== -1;
             return prev;
           }, {});
         } else {
@@ -572,6 +576,11 @@
             break;
           case 'notExists':
             obj.missing = { field: fieldName };
+            break;
+          case 'in':
+            if (group.value === undefined) return;
+            obj.terms = {};
+            obj.terms[fieldName]=(group.value || '').split('\n').filter(function(s){return s.trim();});
             break;
           default:
             throw new Error('unexpected subtype ' + group.subType);
@@ -686,4 +695,4 @@ $templateCache.put("angular-elastic-builder/types/Boolean.html","<span class=\"b
 $templateCache.put("angular-elastic-builder/types/Date.html","<span class=\"date-rule form-inline\">\n  <select data-ng-model=\"rule.subType\" class=\"form-control\">\n    <optgroup label=\"Exact\">\n      <option value=\"equals\">=</option>\n    </optgroup>\n    <optgroup label=\"Unbounded-range\">\n      <option value=\"lt\">&lt;</option>\n      <option value=\"lte\">&le;</option>\n      <option value=\"gt\">&gt;</option>\n      <option value=\"gte\">&ge;</option>\n    </optgroup>\n    <optgroup label=\"Bounded-range\">\n      <option value=\"last\">In the last</option>\n      <option value=\"next\">In the next</option>\n    </optgroup>\n    <optgroup label=\"Generic\">\n      <option value=\"exists\">Exists</option>\n      <option value=\"notExists\">! Exists</option>\n    </optgroup>\n  </select>\n\n  <div class=\"form-group\">\n    <div class=\"input-group\">\n      <input data-ng-if=\"inputNeeded()\"\n        type=\"text\"\n        class=\"form-control\"\n        data-uib-datepicker-popup=\"{{ rule.dateFormat }}\"\n        data-ng-model=\"rule.date\"\n        data-is-open=\"popup1.opened\"\n        data-datepicker-options=\"dateOptions\"\n        data-ng-required=\"true\"\n        data-close-text=\"Close\" />\n      <div class=\"input-group-btn\">\n        <button type=\"button\" class=\"btn btn-default\" ng-click=\"open1()\" data-ng-if=\"inputNeeded()\">\n          <i class=\"fa fa-calendar\"></i>\n        </button>\n      </div>\n    </div>\n  </div>\n\n  <span class=\"form-inline\">\n    <div class=\"form-group\">\n      <label data-ng-if=\"inputNeeded()\">Format</label>\n      <select\n        class=\"form-control\"\n        data-ng-model=\"rule.dateFormat\"\n        data-ng-if=\"inputNeeded()\"\n        ng-options=\"f for f in formats\"></select>\n    </div>\n  </span>\n\n  <span data-ng-if=\"numberNeeded()\">\n    <input type=\"number\" class=\"form-control\" data-ng-model=\"rule.value\" min=0> days\n  </span>\n\n</span>\n");
 $templateCache.put("angular-elastic-builder/types/Multi.html","<span class=\"multi-rule\">\n  <span data-ng-repeat=\"choice in guide.choices\">\n    <label class=\"checkbox\">\n      <input type=\"checkbox\" data-ng-model=\"rule.values[choice]\">\n      {{ choice }}\n    </label>\n  </span>\n</span>\n");
 $templateCache.put("angular-elastic-builder/types/Number.html","<span class=\"number-rule\">\n  <select data-ng-model=\"rule.subType\" class=\"form-control\">\n    <optgroup label=\"Numeral\">\n      <option value=\"equals\">=</option>\n      <option value=\"gt\">&gt;</option>\n      <option value=\"gte\">&ge;</option>\n      <option value=\"lt\">&lt;</option>\n      <option value=\"lte\">&le;</option>\n    </optgroup>\n\n    <optgroup label=\"Generic\">\n      <option value=\"exists\">Exists</option>\n      <option value=\"notExists\">! Exists</option>\n    </optgroup>\n  </select>\n\n  <!-- Range Fields -->\n  <input data-ng-if=\"inputNeeded()\"\n    class=\"form-control\"\n    data-ng-model=\"rule.value\"\n    type=\"number\"\n    min=\"{{ guide.minimum }}\"\n    max=\"{{ guide.maximum }}\">\n</span>\n");
-$templateCache.put("angular-elastic-builder/types/Term.html","<span class=\"elastic-term\">\n  <select data-ng-model=\"rule.subType\" class=\"form-control\">\n    <!-- Term Options -->\n    <optgroup label=\"Text\">\n      <option value=\"equals\">Equals</option>\n      <option value=\"notEquals\">! Equals</option>\n    </optgroup>\n\n    <!-- Generic Options -->\n    <optgroup label=\"Generic\">\n      <option value=\"exists\">Exists</option>\n      <option value=\"notExists\">! Exists</option>\n    </optgroup>\n\n  </select>\n  <input\n    data-ng-if=\"inputNeeded()\"\n    class=\"form-control\"\n    data-ng-model=\"rule.value\"\n    type=\"text\">\n</span>\n");}]);})(window.angular);
+$templateCache.put("angular-elastic-builder/types/Term.html","<span class=\"elastic-term\">\n  <select data-ng-model=\"rule.subType\" class=\"form-control\">\n    <!-- Term Options -->\n    <optgroup label=\"Text\">\n      <option value=\"equals\">Equals</option>\n      <option value=\"notEquals\">! Equals</option>\n    </optgroup>\n\n    <optgroup label=\"Batch\">\n      <option value=\"in\">In</option>\n    </optgroup>\n\n\n    <!-- Generic Options -->\n    <optgroup label=\"Generic\">\n      <option value=\"exists\">Exists</option>\n      <option value=\"notExists\">! Exists</option>\n    </optgroup>\n\n  </select>\n  <input\n    data-ng-if=\"inputNeeded()\"\n    class=\"form-control\"\n    data-ng-model=\"rule.value\"\n    type=\"text\"/>\n  <textarea class=\"form-control\" \n    style=\"min-width:500px;\" \n    data-ng-if=\"largeInputNeeded()\" \n    data-ng-model=\"rule.value\"/>\n</span>\n");}]);})(window.angular);

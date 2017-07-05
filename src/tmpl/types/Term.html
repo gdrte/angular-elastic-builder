@@ -6,6 +6,11 @@
       <option value="notEquals">! Equals</option>
     </optgroup>
 
+    <optgroup label="Batch">
+      <option value="in">In</option>
+    </optgroup>
+
+
     <!-- Generic Options -->
     <optgroup label="Generic">
       <option value="exists">Exists</option>
@@ -17,5 +22,9 @@
     data-ng-if="inputNeeded()"
     class="form-control"
     data-ng-model="rule.value"
-    type="text">
+    type="text"/>
+  <textarea class="form-control" 
+    style="min-width:500px;" 
+    data-ng-if="largeInputNeeded()" 
+    data-ng-model="rule.value"/>
 </span>

@@ -20,7 +20,6 @@
           'list-group-item-warning',
           'list-group-item-danger',
         ];
-
         return levels[level % levels.length];
       };
     });

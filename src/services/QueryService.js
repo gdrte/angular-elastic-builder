@@ -170,6 +170,11 @@
           case 'notExists':
             obj.missing = { field: fieldName };
             break;
+          case 'in':
+            if (group.value === undefined) return;
+            obj.terms = {};
+            obj.terms[fieldName]=(group.value || '').split('\n').filter(function(s){return s.trim();});
+            break;
           default:
             throw new Error('unexpected subtype ' + group.subType);
         }

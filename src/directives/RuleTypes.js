@@ -47,9 +47,14 @@
               'lt',
               'lte',
             ];
-
+            
             return ~needs.indexOf(scope.rule.subType);
           };
+
+          scope.largeInputNeeded = function(){
+            var needs=['in'];
+            return ~needs.indexOf(scope.rule.subType);
+          }
 
           scope.numberNeeded = function() {
             var needs = [
@@ -73,7 +78,7 @@
             dateDisabled: disabled,
             formatYear: 'yy',
             maxDate: new Date(2018, 1, 13),
-            minDate: new Date(),
+            minDate: new Date(2016,1,1),
             startingDay: 1,
           };
 
@@ -93,8 +98,8 @@
           };
 
           scope.formats = [
+            'yyyy-MM-ddTHH:mm:ss.999999\'Z\'',
             'yyyy-MM-ddTHH:mm:ss',
-            'yyyy-MM-ddTHH:mm:ssZ',
             'yyyy-MM-dd',
             'dd-MMMM-yyyy',
             'yyyy/MM/dd',
