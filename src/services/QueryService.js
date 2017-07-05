@@ -275,6 +275,11 @@
   function formatDate($filter, date, dateFormat) {
     if (!angular.isDate(date)) return false;
     var fDate = $filter('date')(date, dateFormat);
+    switch(dateFormat){
+      case 'yyyy-MM-ddTHH:mm:ssZ':
+      fDate = fDate.substring(0,fDate.length-2)+':'+fDate.substring(fDate.length-2,fDate.length);
+      break;
+    }
     return fDate;
   }
 

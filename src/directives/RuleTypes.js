@@ -98,9 +98,8 @@
           };
 
           scope.formats = [
-            'yyyy-MM-ddTHH:mm:ss.999999\'Z\'',
+            'yyyy-MM-ddTHH:mm:ssZ',
             'yyyy-MM-ddTHH:mm:ss',
-            'yyyy-MM-dd',
             'dd-MMMM-yyyy',
             'yyyy/MM/dd',
             'shortDate',
